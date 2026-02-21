@@ -1,0 +1,249 @@
+import React, { useEffect, useRef } from 'react'
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import gsap from 'gsap'
+import './Hero.css'
+
+const LETTERS = 'USAID ALI'.split('')
+
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+// 1. Place your .glb file inside:  d:\Usaid\Web\ArtisticGalaxy\public\
+// 2. Update the path below to match your filename, e.g. '/chair.glb'
+const GLB_MODEL_PATH = '/House.glb'
+
+// Tweak these if your model appears too big / small / fast
+const MODEL_SCALE = 2.2           // overall size multiplier
+const MODEL_ROTATION_SPEED = 0.004 // radians per frame (lower = slower)
+const MODEL_FLOAT_AMPLITUDE = 0.12 // up/down float distance
+// ───────────────────────────────────────────────────────────────────────────
+
+export default function Hero() {
+    const canvasRef = useRef(null)
+    const sectionRef = useRef(null)
+    const lettersRef = useRef([])
+    const subtitleRef = useRef(null)
+    const ctaRef = useRef(null)
+    const scrollHintRef = useRef(null)
+
+    /* ── Three.js scene ── */
+    useEffect(() => {
+        const canvas = canvasRef.current
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+        renderer.shadowMap.enabled = true
+        renderer.outputColorSpace = THREE.SRGBColorSpace
+        renderer.toneMapping = THREE.ACESFilmicToneMapping
+        renderer.toneMappingExposure = 1.2
+
+        const scene = new THREE.Scene()
+        const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 200)
+        camera.position.set(0, 0, 5)
+
+        // ── Lights (warm architectural palette) ──
+        scene.add(new THREE.AmbientLight(0xE0CCBE, 1.0))
+        const dir = new THREE.DirectionalLight(0xffffff, 2.0)
+        dir.position.set(4, 6, 4)
+        dir.castShadow = true
+        scene.add(dir)
+        const fill = new THREE.DirectionalLight(0xE0CCBE, 0.6)
+        fill.position.set(-4, -2, 3)
+        scene.add(fill)
+        const rim = new THREE.PointLight(0x747264, 1.5, 30)
+        rim.position.set(-3, 3, -2)
+        scene.add(rim)
+
+        // ── Ground shadow disc ──
+        const disc = new THREE.Mesh(
+            new THREE.CircleGeometry(1.5, 64),
+            new THREE.MeshBasicMaterial({ color: 0x3C3633, transparent: true, opacity: 0.06 })
+        )
+        disc.rotation.x = -Math.PI / 2
+        disc.position.y = -2.4
+        scene.add(disc)
+
+        // ── Model group (holds whichever object is showing) ──
+        const modelGroup = new THREE.Group()
+        scene.add(modelGroup)
+
+        // Fallback icosahedron (shown until / if GLB loads)
+        const fallbackGeo = new THREE.IcosahedronGeometry(1.4, 1)
+        const fallbackMat = new THREE.MeshStandardMaterial({
+            color: 0x747264, roughness: 0.85, metalness: 0.05,
+            emissive: 0x2a2825, emissiveIntensity: 0.2,
+        })
+        const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat)
+        const wireOverlay = new THREE.Mesh(
+            new THREE.IcosahedronGeometry(1.42, 1),
+            new THREE.MeshBasicMaterial({ color: 0x9a9080, wireframe: true, transparent: true, opacity: 0.18 })
+        )
+        modelGroup.add(fallbackMesh)
+        modelGroup.add(wireOverlay)
+
+        // ── Load the custom GLB ──
+        const loader = new GLTFLoader()
+        loader.load(
+            GLB_MODEL_PATH,
+            (gltf) => {
+                // Remove fallback shapes
+                modelGroup.remove(fallbackMesh)
+                modelGroup.remove(wireOverlay)
+
+                const model = gltf.scene
+
+                // Auto-center + auto-scale to a normalized size
+                const box = new THREE.Box3().setFromObject(model)
+                const size = box.getSize(new THREE.Vector3())
+                const maxDim = Math.max(size.x, size.y, size.z)
+                model.scale.setScalar(MODEL_SCALE / maxDim)
+
+                // Re-center after scale
+                const box2 = new THREE.Box3().setFromObject(model)
+                const center = box2.getCenter(new THREE.Vector3())
+                model.position.sub(center)
+
+                // Shadows + material tweaks
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true
+                        child.receiveShadow = true
+                    }
+                })
+
+                // Start invisible, fade in
+                model.traverse(c => {
+                    if (c.isMesh) {
+                        c.material = c.material.clone()
+                        c.material.transparent = true
+                        c.material.opacity = 0
+                    }
+                })
+                modelGroup.add(model)
+
+                gsap.to({ val: 0 }, {
+                    val: 1, duration: 1.4, ease: 'power2.out',
+                    onUpdate: function () {
+                        model.traverse(c => { if (c.isMesh) c.material.opacity = this.targets()[0].val })
+                    },
+                })
+            },
+            undefined,
+            () => {
+                console.info(
+                    `[Hero] No GLB found at "${GLB_MODEL_PATH}". ` +
+                    'Place your .glb file in d:\\Usaid\\Web\\ArtisticGalaxy\\public\\ and update GLB_MODEL_PATH above.'
+                )
+            }
+        )
+
+        // ── Mouse parallax ──
+        const mouse = { x: 0, y: 0 }
+        const onMouseMove = (e) => {
+            mouse.x = (e.clientX / window.innerWidth - 0.5) * 2
+            mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2
+        }
+        window.addEventListener('mousemove', onMouseMove)
+
+        // ── Resize ──
+        const onResize = () => {
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+            camera.aspect = canvas.clientWidth / canvas.clientHeight
+            camera.updateProjectionMatrix()
+        }
+        window.addEventListener('resize', onResize)
+
+        // ── Render loop ──
+        let frameId, time = 0
+        const animate = () => {
+            frameId = requestAnimationFrame(animate)
+            time += MODEL_ROTATION_SPEED
+            modelGroup.rotation.y = time
+            modelGroup.rotation.x = Math.sin(time * 0.4) * 0.18
+            modelGroup.position.y = Math.sin(time * 0.8) * MODEL_FLOAT_AMPLITUDE
+            camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05
+            camera.position.y += (mouse.y * 0.3 - camera.position.y) * 0.05
+            camera.lookAt(scene.position)
+            renderer.render(scene, camera)
+        }
+        animate()
+
+        return () => {
+            cancelAnimationFrame(frameId)
+            window.removeEventListener('mousemove', onMouseMove)
+            window.removeEventListener('resize', onResize)
+            renderer.dispose()
+        }
+    }, [])
+
+    /* ── GSAP entry animation ── */
+    useEffect(() => {
+        const tl = gsap.timeline({ delay: 0.3 })
+        tl.fromTo(sectionRef.current,
+            { backgroundColor: '#3C3633' },
+            { backgroundColor: '#EEEDEB', duration: 1.8, ease: 'power2.inOut' }
+        )
+        tl.fromTo(lettersRef.current,
+            { opacity: 0, y: 80, rotateX: -60 },
+            { opacity: 1, y: 0, rotateX: 0, duration: 1.2, stagger: 0.07, ease: 'expo.out' },
+            '-=0.8'
+        )
+        tl.fromTo(subtitleRef.current,
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 1, ease: 'power3.out' },
+            '-=0.4'
+        )
+        tl.fromTo(ctaRef.current,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+            '-=0.5'
+        )
+        tl.fromTo(scrollHintRef.current,
+            { opacity: 0 },
+            { opacity: 0.5, duration: 0.6 },
+            '-=0.3'
+        )
+    }, [])
+
+    const scrollTo = (id) => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    return (
+        <section id="hero" ref={sectionRef} className="hero">
+            <canvas ref={canvasRef} className="hero-canvas" />
+
+            <div className="hero-content">
+                <div className="hero-title" aria-label="USAID ALI">
+                    {LETTERS.map((char, i) => (
+                        <span
+                            key={i}
+                            ref={el => lettersRef.current[i] = el}
+                            className={`hero-letter ${char === ' ' ? 'space' : ''}`}
+                        >
+                            {char === ' ' ? '\u00A0' : char}
+                        </span>
+                    ))}
+                </div>
+
+                <p ref={subtitleRef} className="hero-subtitle">
+                    3D Visualizer &nbsp;|&nbsp; Architectural Rendering Specialist
+                </p>
+
+                <div ref={ctaRef} className="hero-cta">
+                    <button className="btn btn-primary" onClick={() => scrollTo('portfolio')}>
+                        View My Work
+                    </button>
+                    <button className="btn btn-secondary" onClick={() => scrollTo('contact')}>
+                        Contact Me
+                    </button>
+                </div>
+            </div>
+
+            <div ref={scrollHintRef} className="scroll-hint">
+                <span>Scroll</span>
+                <div className="scroll-line"><div className="scroll-dot" /></div>
+            </div>
+        </section>
+    )
+}
