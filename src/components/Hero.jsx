@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 import './Hero.css'
 
@@ -38,7 +39,18 @@ export default function Hero() {
 
         const scene = new THREE.Scene()
         const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 200)
-        camera.position.set(0, 0, 5)
+        camera.position.set(0, 0, 5.5)
+
+        // ── Controls ──
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.dampingFactor = 0.05
+        controls.enablePan = false
+        controls.autoRotate = true
+        controls.autoRotateSpeed = 0.8
+        controls.minDistance = 3
+        controls.maxDistance = 10
+        controls.maxPolarAngle = Math.PI / 1.6 // Don't see under the house
 
         // ── Lights (warm architectural palette) ──
         scene.add(new THREE.AmbientLight(0xE0CCBE, 1.0))
@@ -142,14 +154,6 @@ export default function Hero() {
             }
         )
 
-        // ── Mouse parallax ──
-        const mouse = { x: 0, y: 0 }
-        const onMouseMove = (e) => {
-            mouse.x = (e.clientX / window.innerWidth - 0.5) * 2
-            mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2
-        }
-        window.addEventListener('mousemove', onMouseMove)
-
         // ── Resize ──
         const onResize = () => {
             renderer.setSize(canvas.clientWidth, canvas.clientHeight)
@@ -162,21 +166,21 @@ export default function Hero() {
         let frameId, time = 0
         const animate = () => {
             frameId = requestAnimationFrame(animate)
-            time += MODEL_ROTATION_SPEED
-            modelGroup.rotation.y = time
-            modelGroup.rotation.x = Math.sin(time * 0.4) * 0.18
+            time += 0.01
+
+            controls.update()
+
+            // Subtle base float that adds to the rotation
             modelGroup.position.y = Math.sin(time * 0.8) * MODEL_FLOAT_AMPLITUDE
-            camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05
-            camera.position.y += (mouse.y * 0.3 - camera.position.y) * 0.05
-            camera.lookAt(scene.position)
+
             renderer.render(scene, camera)
         }
         animate()
 
         return () => {
             cancelAnimationFrame(frameId)
-            window.removeEventListener('mousemove', onMouseMove)
             window.removeEventListener('resize', onResize)
+            controls.dispose()
             renderer.dispose()
         }
     }, [])

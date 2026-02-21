@@ -15,7 +15,8 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
+    pointer-events: auto;
+    /* Enable 3D interaction */
 }
 
 .hero-content {
@@ -23,6 +24,8 @@
     z-index: 2;
     text-align: center;
     padding: 0 2rem;
+    pointer-events: none;
+    /* Allow clicking through title text */
 }
 
 .hero-title {
@@ -69,6 +72,8 @@
     justify-content: center;
     flex-wrap: wrap;
     opacity: 0;
+    pointer-events: auto;
+    /* Re-enable for buttons */
 }
 
 .btn-secondary {
@@ -115,6 +120,8 @@
     align-items: center;
     gap: 0.6rem;
     opacity: 0;
+    pointer-events: none;
+    /* Don't block interaction at bottom */
 }
 
 .scroll-hint span {
