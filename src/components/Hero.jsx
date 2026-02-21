@@ -91,18 +91,24 @@ export default function Hero() {
 
                 const model = gltf.scene
 
-                // Auto-center + auto-scale to a normalized size
+                // 1. Force matrix update to ensure internal transforms are accounted for
+                model.updateMatrixWorld(true)
+
+                // 2. Auto-scale to a normalized size first
                 const box = new THREE.Box3().setFromObject(model)
                 const size = box.getSize(new THREE.Vector3())
                 const maxDim = Math.max(size.x, size.y, size.z)
                 model.scale.setScalar(MODEL_SCALE / maxDim)
 
-                // Re-center after scale
+                // 3. Re-calculate center after scale and force update again
+                model.updateMatrixWorld(true)
                 const box2 = new THREE.Box3().setFromObject(model)
                 const center = box2.getCenter(new THREE.Vector3())
+
+                // 4. Center the model by subtracting the calculated center
                 model.position.sub(center)
 
-                // Shadows + material tweaks
+                // 5. Shadows + material tweaks
                 model.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true
