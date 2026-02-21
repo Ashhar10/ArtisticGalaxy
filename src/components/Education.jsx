@@ -39,11 +39,11 @@ export default function Education() {
                         </svg>
                     </div>
                     <div className="edu-content">
-                        <div className="edu-degree">Bachelor of Architecture</div>
-                        <div className="edu-school">Indus Valley School of Art and Architecture</div>
-                        <div className="edu-years">2017 – 2022</div>
+                        <div className="edu-degree">Diploma of Civil Engineering</div>
+                        <div className="edu-school">Hasani College of Technology</div>
+                        <div className="edu-years">2022 – 2025</div>
                         <p className="edu-desc">
-                            Comprehensive architectural education spanning design theory, spatial planning,
+                            Comprehensive civil engineering education spanning design theory, spatial planning,
                             structural systems, and digital visualization. Built a strong foundation in
                             both design aesthetics and technical precision.
                         </p>
