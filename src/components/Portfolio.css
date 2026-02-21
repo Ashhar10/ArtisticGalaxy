@@ -1,5 +1,5 @@
 .portfolio {
-    background: var(--soft-beige);
+    background: var(--bg-light);
     padding: 10rem 4rem;
 }
 
@@ -35,7 +35,7 @@
 
 .portfolio-item:hover {
     transform: translateY(-8px);
-    box-shadow: 0 30px 70px rgba(60, 54, 51, 0.15);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
 }
 
 .portfolio-thumb {
@@ -161,8 +161,8 @@
     font-size: 0.68rem;
     font-weight: 500;
     letter-spacing: 0.06em;
-    color: var(--muted-olive);
-    background: rgba(116, 114, 100, 0.1);
+    color: var(--dark-accent);
+    background: rgba(255, 252, 208, 0.1);
     padding: 0.2rem 0.6rem;
     border-radius: 100px;
 }
@@ -171,9 +171,10 @@
     font-size: 0.78rem;
     font-weight: 500;
     letter-spacing: 0.1em;
-    color: var(--muted-olive);
+    color: var(--dark-accent);
     transition: letter-spacing 0.3s ease;
 }
+
 
 .portfolio-item:hover .portfolio-cta {
     letter-spacing: 0.2em;
@@ -183,7 +184,7 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(60, 54, 51, 0.7);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
     z-index: 5000;
     display: flex;
@@ -270,13 +271,13 @@
 }
 
 .modal-tag {
-    background: rgba(116, 114, 100, 0.12);
-    color: var(--muted-olive);
+    background: rgba(255, 252, 208, 0.12);
+    color: var(--dark-accent);
     font-size: 0.78rem;
     font-weight: 500;
     padding: 0.35rem 1rem;
     border-radius: 100px;
-    border: 1px solid rgba(116, 114, 100, 0.2);
+    border: 1px solid rgba(255, 252, 208, 0.2);
 }
 
 .modal-desc {
@@ -296,13 +297,13 @@
     font-size: 0.72rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--muted-olive);
+    color: var(--dark-accent);
     margin-bottom: 0.5rem;
 }
 
 .comparison-bar {
     height: 6px;
-    background: rgba(116, 114, 100, 0.12);
+    background: rgba(255, 252, 208, 0.12);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 0.6rem;

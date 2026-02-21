@@ -1,9 +1,9 @@
 /* ===== DESIGN TOKENS ===== */
 :root {
-  --bg-light: #EEEDEB;
-  --soft-beige: #E0CCBE;
-  --muted-olive: #747264;
-  --dark-accent: #3C3633;
+  --bg-light: #262323;
+  --soft-beige: #807E83;
+  --muted-olive: #403D3E;
+  --dark-accent: #FFFCD0;
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
   --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);

@@ -67,7 +67,7 @@ export default function Contact() {
 
             <div className="contact-inner">
                 <div ref={headingRef} className="contact-heading">
-                    <span className="section-label" style={{ color: 'rgba(224,204,190,0.6)' }}>Get In Touch</span>
+                    <span className="section-label" style={{ color: 'var(--dark-accent)', opacity: 0.6 }}>Get In Touch</span>
                     <h2>Let's Create <em>Together</em></h2>
                     <p className="contact-sub">
                         Ready to bring your vision to life? Whether you need architectural visualization,

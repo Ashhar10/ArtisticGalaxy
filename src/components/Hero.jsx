@@ -52,23 +52,23 @@ export default function Hero() {
         controls.maxDistance = 10
         controls.maxPolarAngle = Math.PI / 1.6 // Don't see under the house
 
-        // ── Lights (warm architectural palette) ──
-        scene.add(new THREE.AmbientLight(0xE0CCBE, 1.0))
+        // ── Lights (Dramatic Dark Palette) ──
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4)) // Lower ambient for dark look
         const dir = new THREE.DirectionalLight(0xffffff, 2.0)
         dir.position.set(4, 6, 4)
         dir.castShadow = true
         scene.add(dir)
-        const fill = new THREE.DirectionalLight(0xE0CCBE, 0.6)
+        const fill = new THREE.DirectionalLight(0x403D3E, 0.6)
         fill.position.set(-4, -2, 3)
         scene.add(fill)
-        const rim = new THREE.PointLight(0x747264, 1.5, 30)
+        const rim = new THREE.PointLight(0xFFFCD0, 1.8, 30) // Vanilla as rim light accent
         rim.position.set(-3, 3, -2)
         scene.add(rim)
 
         // ── Ground shadow disc ──
         const disc = new THREE.Mesh(
             new THREE.CircleGeometry(1.5, 64),
-            new THREE.MeshBasicMaterial({ color: 0x3C3633, transparent: true, opacity: 0.06 })
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.15 })
         )
         disc.rotation.x = -Math.PI / 2
         disc.position.y = -2.4
@@ -81,8 +81,8 @@ export default function Hero() {
         // Fallback icosahedron (shown until / if GLB loads)
         const fallbackGeo = new THREE.IcosahedronGeometry(1.4, 1)
         const fallbackMat = new THREE.MeshStandardMaterial({
-            color: 0x747264, roughness: 0.85, metalness: 0.05,
-            emissive: 0x2a2825, emissiveIntensity: 0.2,
+            color: 0x807E83, roughness: 0.85, metalness: 0.05,
+            emissive: 0x1a1818, emissiveIntensity: 0.2,
         })
         const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat)
         const wireOverlay = new THREE.Mesh(
@@ -189,8 +189,8 @@ export default function Hero() {
     useEffect(() => {
         const tl = gsap.timeline({ delay: 0.3 })
         tl.fromTo(sectionRef.current,
-            { backgroundColor: '#3C3633' },
-            { backgroundColor: '#EEEDEB', duration: 1.8, ease: 'power2.inOut' }
+            { backgroundColor: '#000000' },
+            { backgroundColor: '#262323', duration: 1.8, ease: 'power2.inOut' }
         )
         tl.fromTo(lettersRef.current,
             { opacity: 0, y: 80, rotateX: -60 },

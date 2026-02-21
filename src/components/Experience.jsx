@@ -76,7 +76,7 @@ export default function Experience() {
                         <div className="timeline-content">
                             <div className="timeline-meta">
                                 <span className="timeline-date">Apr 2022 – Present</span>
-                                <span className="timeline-company">Ellipse Studio, Karachi</span>
+                                <span className="timeline-company">Elipse Studio, Karachi</span>
                             </div>
                             <h3 className="timeline-role">3D Visualizer</h3>
                             <ul className="timeline-bullets">
